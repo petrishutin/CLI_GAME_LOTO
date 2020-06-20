@@ -3,11 +3,13 @@ import sys
 import time
 import random
 
-from cards import pool_of_numbers, make_pair_of_cards
-from player import Player
+from typing import Union, List
+
+from cards import pool_of_numbers, deal_a_cards, show_cards
+from players import Human, Computer
+
 
 class Game:
-
     def __init__(self):
         print('Welcome to LOTO game')
         time.sleep(2)
@@ -15,55 +17,51 @@ class Game:
     def main_menu(self):
         os.system('clear')
         print('Main menu')
-        choice = input('Input 1 to play PvE, 2 to play PvP, 3 to watch MEGA-ULTRA-BATTLE of AIs, q to quit\n')
-        self._new_game(choice)
-
-    def _new_game(self, mode):
-        self.pool = pool_of_numbers()
-        self.winner = None
-        self.card1, self.card2 = make_pair_of_cards()
-        if mode == 'q':
+        choice1 = input("Input total number of players (must be in range 2 to 6) or 'q' to quit\n")
+        if choice1.lower() == 'q':
             sys.exit('Bye!')
-        elif mode == '1':
-            self.player1 = Player('Player1', self.card1)
-            self.player2 = Player('Computer', self.card2, ai=True)
-        elif mode == '2':
-            self.player1 = Player('Player1', self.card1)
-            self.player2 = Player('Player2', self.card2)
-        elif mode == '3':
-            self.player1 = Player('Computer1', self.card1, ai=True)
-            self.player2 = Player('Computer2', self.card2, ai=True)
-        else:
-            print('Wrong input. try again')
+        choice2 = input("Input number of human players (must be in range 1 to 6, but not more that total number)\n")
+        if choice2.lower() == 'q':
+            sys.exit('Bye!')
+        self._new_game(int(choice1), int(choice2))
+
+    def _new_game(self, num_of_players: int, num_of_humans: int):
+        if not 1 < num_of_players < 7:
+            print('Number of players mast be in range of 2 to 6')
             time.sleep(1)
             self.main_menu()
+        self.pool: List[int] = pool_of_numbers()
+        self.winner: Union[Human, Computer, None] = None
+        self.cards: List[list] = deal_a_cards(num_of_players)
+        self.table_of_players: List[Union[Human, Computer]] = []
+        if num_of_humans == num_of_players:
+            for pl in range(num_of_players):
+                player = Human(f'Person{pl+1}', self.cards.pop())
+                self.table_of_players.append(player)
+        else:
+            for hm in range(num_of_humans):
+                human = Human(f"Human{hm+1}", self.cards.pop())
+                self.table_of_players.append(human)
+            for cm in range(num_of_players - num_of_humans):
+                computer = Computer(f"Computer{cm+1}", self.cards.pop())
+                self.table_of_players.append(computer)
         self._start_match()
 
     def _start_match(self):
         while not self.winner:
-            self._take_turn(1)
-            self._take_turn(2)
+            for pl in self.table_of_players:
+                self._take_turn(pl)
+                if len(self.table_of_players) == 1:
+                    self.winner = self.table_of_players[0]
+                    break
+        self._end_match()
 
     def _show_cards(self):
-        def join_cells(nums):
-            return f"|{'|'.join((str(x) if len(str(x)) == 2 else ' ' + str(x) for x in nums))}|"
+        show_cards(*self.table_of_players)
 
-        print(f"Player1 card: {' ' * 17}Player2 card:")
-        print(f"{'_' * 28}    {'_' * 28}")
-        print(f"{join_cells(self.player1.card[:9])}    {join_cells(self.player2.card[:9])}")
-        print(f"{join_cells(self.player1.card[9:18])}    {join_cells(self.player2.card[9:18])}")
-        print(f"{join_cells(self.player1.card[18:])}    {join_cells(self.player2.card[18:])}")
-        print(f"{'-' * 28}    {'-' * 28}")
-
-    def _take_turn(self, player: int):
+    def _take_turn(self, player: Union[Human, Computer]):
         os.system('clear')
         self._show_cards()
-        if player == 1:
-            player = self.player1
-            opponent = self.player2
-        else:
-            player = self.player2
-            opponent = self.player1
         piece = self.pool.pop()
         print(f'Turn of {player.name}. Piece is {piece}')
         answer = player.take_piece(piece)
@@ -71,10 +69,10 @@ class Game:
             self.winner = player
             self._end_match()
         elif answer == 'lose':
-            self.winner = opponent
-            self._end_match()
+            self.table_of_players.remove(player)
         elif answer == 'wrong input':
-            self.pool.insert(-1, piece)
+            self.pool.append(piece)
+            random.shuffle(self.pool)
         elif answer == 'take':
             pass
         else:
@@ -82,6 +80,7 @@ class Game:
             random.shuffle(self.pool)
 
     def _end_match(self):
-        print(f'Winner is {self.winner.name}')
+        os.system('clear')
+        print(f'Winner is {self.winner.name}!')
         time.sleep(3)
         self.main_menu()

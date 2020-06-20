@@ -1,38 +1,54 @@
 import random
 
-def pool_of_numbers():
-    pool = [i for i in range(1, 91)]
-    random.shuffle(pool)
-    return pool
+from typing import List
+
+from players import Computer
 
 
-def make_pair_of_cards():
+def pool_of_numbers() -> list:
+    return random.shuffle([i for i in range(1, 91)])
+
+
+def deal_a_cards(num: int) -> List[list]:
     pool = pool_of_numbers()
-    card1 = []
-    card2 = []
-    for _ in range(15):
-        number = pool.pop()
-        card1.append(number)
-    for _ in range(12):
-        card1.append('  ')
-    for _ in range(15):
-        number = pool.pop()
-        card2.append(number)
-    for _ in range(12):
-        card2.append('  ')
-    random.shuffle(card1)
-    random.shuffle(card2)
-    return card1, card2,
+    cards = []
+    for _ in range(num):
+        card = []
+        for _ in range(3):
+            line = []
+            for _ in range(5):
+                number = pool.pop()
+                line.append(number)
+            for _ in range(4):
+                line.append('  ')
+            random.shuffle(line)
+            card.extend(line)
+        cards.append(card)
+    return cards
 
 
-def show_cards(card1, card2):
-    def join_cells(nums):
+def show_cards(*player_table) -> None:
+    def join_card_cells(nums):
         return f"|{'|'.join((str(x) if len(str(x)) == 2 else ' ' + str(x) for x in nums))}|"
 
-    print(f"{'_' * 28}    {'_' * 28}")
-    print(join_cells(card1[:9]) + '    ' + join_cells(card2[:9]))
-    print(join_cells(card1[9:18]) + '    ' + join_cells(card2[9:18]))
-    print(join_cells(card1[18:]) + '    ' + join_cells(card2[18:]))
-    print(f"{'-' * 28}    {'-' * 28}")
+    name_string = card_top_edge = card_line1 = card_line2 = card_line3 = bottom_edge = ''
+    for player in player_table:
+        name_string += player.name + ' card:' + ' ' * (22 - len(player.name)) + '    '
+        card_top_edge += f"{'_' * 28}    "
+        card_line1 += f"{join_card_cells(player.card[:9])}    "
+        card_line2 += f"{join_card_cells(player.card[9:18])}    "
+        card_line3 += f"{join_card_cells(player.card[18:])}    "
+        bottom_edge += f"{'-' * 28}    "
+    print(name_string, card_top_edge, card_line1, card_line2, card_line3, bottom_edge, sep="\n")
 
-show_cards(*make_pair_of_cards())
+
+if __name__ == '__main__':
+    pt: List[Computer] = []
+    name_list = ('Player1', '2fd', '3', '4')
+    crds = deal_a_cards(4)
+    print(crds)
+    for name in name_list:
+        user = Computer(name, crds.pop())
+        pt.append(user)
+        print(user.check_set)
+    show_cards(*pt)
