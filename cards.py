@@ -6,10 +6,13 @@ from players import Computer
 
 
 def pool_of_numbers() -> list:
-    return random.shuffle([i for i in range(1, 91)])
+    pool = [i for i in range(1, 91)]
+    random.shuffle(pool)
+    return pool
 
 
-def deal_a_cards(num: int) -> List[list]:
+def deal_cards(num: int) -> List[list]:
+    assert 2 <= num < 7, 'Number of cards must br in range 2 to 6'
     pool = pool_of_numbers()
     cards = []
     for _ in range(num):
@@ -45,7 +48,7 @@ def show_cards(*player_table) -> None:
 if __name__ == '__main__':
     pt: List[Computer] = []
     name_list = ('Player1', '2fd', '3', '4')
-    crds = deal_a_cards(4)
+    crds = deal_cards(4)
     print(crds)
     for name in name_list:
         user = Computer(name, crds.pop())

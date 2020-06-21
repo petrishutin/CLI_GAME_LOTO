@@ -1,6 +1,7 @@
 import time
 import sys
 
+
 class Player:
     def __init__(self, name: str, card: list):
         self.name = name
@@ -44,7 +45,7 @@ class Human(Player):
 class Computer(Player):
 
     def take_piece(self, piece):
-        time.sleep(1.5)
+        time.sleep(.8)
         if self.check_set and piece in self.check_set:
             self.check_set.remove(piece)
             position = self.card.index(piece)
