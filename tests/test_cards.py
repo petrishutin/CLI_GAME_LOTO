@@ -13,15 +13,19 @@ class TestDealCards:
                               pytest.param(6, 6),
                               ])
     def test_deal_cards_diff_num_of_players(self, num, exp):
-        assert len(deal_cards(num)) == exp
+        """Test if number of cards in stack returned and if all cards in stack has 27 cells"""
+        cards = deal_cards(num)
+        assert len(cards) == exp
+        for card in cards:
+            assert len(card) == 27
 
-    @pytest.mark.parametrize('error, input',
+    @pytest.mark.parametrize('error, user_input',
                              [pytest.param(TypeError, None),
                               pytest.param(AssertionError, 1),
                               pytest.param(AssertionError, 7)])
-    def test_deal_cards_invalid_input(self, error, input):
+    def test_deal_cards_invalid_input(self, error, user_input):
         with pytest.raises(error) as exp:
-            deal_cards(input)
+            deal_cards(user_input)
             assert exp == error
 
 

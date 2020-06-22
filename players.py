@@ -17,7 +17,7 @@ class Player:
 class Human(Player):
 
     def take_piece(self, piece: int):
-        choice = input('Take? y/n\n')
+        choice = self._user_input('Take? y/n\n')
         if choice.lower() == 'y':
             if self.check_set and piece in self.check_set:
                 self.check_set.remove(piece)
@@ -40,6 +40,11 @@ class Human(Player):
         if not self.check_set:
             say = 'win'
         return say
+
+    @staticmethod
+    def _user_input(message: str):
+        """This func is needed as a target for mock patch"""
+        return input(message)
 
 
 class Computer(Player):
