@@ -17,8 +17,8 @@ class Player:
 class Human(Player):
 
     def take_piece(self, piece: int):
-        choice = self._user_input('Take? y/n\n')
-        if choice.lower() == 'y':
+        choice = self._user_input('Take? y/n\n').lower()
+        if choice == 'y':
             if self.check_set and piece in self.check_set:
                 self.check_set.remove(piece)
                 position = self.card.index(piece)
@@ -26,12 +26,12 @@ class Human(Player):
                 say = 'take'
             else:
                 say = 'lose'
-        elif choice.lower() == 'n':
+        elif choice == 'n':
             if piece in self.check_set:
                 say = 'lose'
             else:
                 say = 'pass'
-        elif choice.lower() == 'q':
+        elif choice == 'q':
             sys.exit('Bye')
         else:
             print('wrong input. Losing turn')

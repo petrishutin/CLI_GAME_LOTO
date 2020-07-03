@@ -39,9 +39,9 @@ class Game:
             self.main_menu()
         if not 0 <= int(choice2) < 7:
             print('Number of human players must be in range 0 to 5')
-        self._new_game(int(choice1), int(choice2))
+        self.new_game(int(choice1), int(choice2))
 
-    def _new_game(self, num_of_players: int, num_of_humans: int):
+    def new_game(self, num_of_players: int, num_of_humans: int):
         self.pool: List[int] = pool_of_numbers()
         self.winner: Union[Human, Computer, None] = None
         self.cards: List[list] = deal_cards(num_of_players)
@@ -57,29 +57,29 @@ class Game:
             for cm in range(num_of_players - num_of_humans):
                 computer = Computer(f"Computer{cm + 1}", self.cards.pop())
                 self.table_of_players.append(computer)
-        self._start_match()
+        self.start_match()
 
-    def _start_match(self):
+    def start_match(self):
         while not self.winner:
             for pl in self.table_of_players:
-                self._take_turn(pl)
+                self.take_turn(pl)
                 if len(self.table_of_players) == 1:
                     self.winner = self.table_of_players[0]
                     break
-        self._end_match()
+        self.end_match()
 
-    def _show_cards(self):
+    def show_cards(self):
         show_cards(*self.table_of_players)
 
-    def _take_turn(self, player: Union[Human, Computer]):
+    def take_turn(self, player: Union[Human, Computer]):
         os.system('clear')
-        self._show_cards()
+        self.show_cards()
         piece = self.pool.pop()
         print(f'Turn of {player.name}. Piece is {piece}')
         answer = player.take_piece(piece)
         if answer == 'win':
             self.winner = player
-            self._end_match()
+            self.end_match()
         elif answer == 'lose':
             self.table_of_players.remove(player)
         elif answer == 'wrong input':
@@ -91,7 +91,7 @@ class Game:
             self.pool.append(piece)
             random.shuffle(self.pool)
 
-    def _end_match(self):
+    def end_match(self):
         os.system('clear')
         print(f'Winner is {self.winner.name}!')
         time.sleep(3)
